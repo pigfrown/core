@@ -295,7 +295,7 @@ class PrometheusMetrics:
         documentation: str,
         extra_labels: list[str] | None = None,
     ) -> _MetricBaseT:
-        labels = ["entity", "friendly_name", "domain"]
+        labels = ["entity", "friendly_name", "domain", "area"]
         if extra_labels is not None:
             labels.extend(extra_labels)
 
