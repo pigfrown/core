@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from contextlib import suppress
 import logging
 import string
+from collections.abc import Callable
+from contextlib import suppress
 from typing import Any, TypeVar, cast
 
-from aiohttp import web
+import homeassistant.helpers.config_validation as cv
 import prometheus_client
-from prometheus_client.metrics import MetricWrapperBase
 import voluptuous as vol
-
+from aiohttp import web
 from homeassistant import core as hacore
 from homeassistant.components.climate import (
     ATTR_CURRENT_TEMPERATURE,
@@ -31,6 +30,7 @@ from homeassistant.components.humidifier import ATTR_AVAILABLE_MODES, ATTR_HUMID
 from homeassistant.components.light import ATTR_BRIGHTNESS
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import (
+    ATTR_AREA_ID,
     ATTR_BATTERY_LEVEL,
     ATTR_DEVICE_CLASS,
     ATTR_FRIENDLY_NAME,
@@ -50,8 +50,8 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import Event, HomeAssistant, State
-from homeassistant.helpers import entityfilter, state as state_helper
-import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers import entityfilter
+from homeassistant.helpers import state as state_helper
 from homeassistant.helpers.entity_registry import (
     EVENT_ENTITY_REGISTRY_UPDATED,
     EventEntityRegistryUpdatedData,
@@ -61,6 +61,7 @@ from homeassistant.helpers.event import EventStateChangedData
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util.dt import as_timestamp
 from homeassistant.util.unit_conversion import TemperatureConverter
+from prometheus_client.metrics import MetricWrapperBase
 
 _MetricBaseT = TypeVar("_MetricBaseT", bound=MetricWrapperBase)
 _LOGGER = logging.getLogger(__name__)
@@ -345,6 +346,7 @@ class PrometheusMetrics:
             "entity": state.entity_id,
             "domain": state.domain,
             "friendly_name": state.attributes.get(ATTR_FRIENDLY_NAME),
+            "area": state.attributes.get(ATTR_AREA_ID),
         }
 
     def _battery(self, state: State) -> None:
